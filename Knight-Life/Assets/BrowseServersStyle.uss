@@ -1,0 +1,31 @@
+:root {
+}
+
+.header {
+    font-size: 40px;
+    -unity-font-style: bold;
+    -unity-text-outline-color: rgb(255, 255, 255);
+    -unity-text-outline-width: 2px;
+    color: rgb(0, 0, 0);
+    width: 220px;
+    height: 60px;
+}
+
+.button {
+    align-self: center;
+    width: 220px;
+    height: 60px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-left-color: rgb(60, 60, 60);
+    border-right-color: rgb(60, 60, 60);
+    border-top-color: rgb(60, 60, 60);
+    border-bottom-color: rgb(60, 60, 60);
+    align-content: flex-start;
+}

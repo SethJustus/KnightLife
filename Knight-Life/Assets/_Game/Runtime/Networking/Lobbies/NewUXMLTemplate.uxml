@@ -1,7 +1,0 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="Root" style="flex-grow: 1; -unity-background-image-tint-color: rgb(70, 70, 70); background-color: rgb(89, 89, 89);">
-        <ui:Button text="Host New&#10;" name="my-button"/>
-        <ui:MultiColumnListView columns="" sort-column-descriptions="" name="lobby-list" style="height: 407px; width: 860px;"/>
-        <ui:Button text="Refresh&#10;" name="refresh-lobbies"/>
-    </ui:VisualElement>
-</ui:UXML>
