@@ -1,12 +1,17 @@
 namespace KnightLife.Runtime.Networking.Lobbies
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using UnityEngine;
+    using Unity.Netcode;
+    using Unity.Netcode.Transports.UTP;
+    using Unity.Services.Core;
     using Unity.Services.Lobbies;
     using Unity.Services.Lobbies.Models;
-    using Unity.Services.Core;
-    using System;
+    using Unity.Services.Relay;
+    using Unity.Services.Relay.Models;
+    using UnityEngine;
+    using UnityEngine.SceneManagement;
 
     public class LobbyManager : MonoBehaviour
     {
@@ -38,14 +43,14 @@ namespace KnightLife.Runtime.Networking.Lobbies
                 string lobbyName = "My First Lobby";
                 int maxPlayers = 4;
 
-                var options = new CreateLobbyOptions
+                var options = new CreateLobbyOptions 
                 {
                     IsPrivate = false,
                     Data = new Dictionary<string, DataObject>
-                {
-                    { "GameMode", new DataObject(DataObject.VisibilityOptions.Public, "Coop") },
-                    { "Map", new DataObject(DataObject.VisibilityOptions.Public, "Forest") }
-                }
+                    {
+                        { "GameMode", new DataObject(DataObject.VisibilityOptions.Public, "Coop") },
+                        { "Map", new DataObject(DataObject.VisibilityOptions.Public, "Forest") }
+                    }
                 };
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(
@@ -53,6 +58,21 @@ namespace KnightLife.Runtime.Networking.Lobbies
                     maxPlayers,
                     options
                 );
+
+                // Set up the relay
+                var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
+
+                string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+
+                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+
+                var transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+
+                transport.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAllocation, "dtls"));
+
+                NetworkManager.Singleton.StartHost();
+
+                SceneManager.LoadScene("Game");
 
                 Debug.Log($"Created lobby: {CurrentLobby.Name}");
                 Debug.Log($"Lobby ID: {CurrentLobby.Id}");
