@@ -59,20 +59,15 @@ namespace KnightLife.Runtime.Networking.Lobbies
                     options
                 );
 
-                // Set up the relay
                 var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
-
                 string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-
                 var transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-
-                transport.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAllocation, "dtls"));
+                transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "dtls"));
 
                 NetworkManager.Singleton.StartHost();
 
-                SceneManager.LoadScene("Game");
+                NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
 
                 Debug.Log($"Created lobby: {CurrentLobby.Name}");
                 Debug.Log($"Lobby ID: {CurrentLobby.Id}");
