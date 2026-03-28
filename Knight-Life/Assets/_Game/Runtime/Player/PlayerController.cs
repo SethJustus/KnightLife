@@ -31,6 +31,8 @@ namespace KnightLife.Runtime.Player
 
         public override void OnNetworkSpawn()
         {
+
+
             playerCamera.gameObject.SetActive(IsOwner);
             if (!IsOwner)
             {
@@ -48,7 +50,7 @@ namespace KnightLife.Runtime.Player
 
         private void Update()
         {
-            Debug.Log($"Owner={IsOwner} Move={input.Move} Look={input.Look} Jump={input.JumpPressed}");
+            Debug.Log($"Owner={IsOwner} IsPlayer={IsLocalPlayer} Move={input.Move} Look={input.Look} Jump={input.JumpPressed}");
             if (!IsOwner)
             {
                 return;

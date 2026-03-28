@@ -63,6 +63,20 @@ namespace KnightLife.Runtime.Networking.Lobbies
                 var label = (Label)element;
                 label.text = Lobbies[rowIndex].Players.Count.ToString();
             };
+
+            lobbyList.selectionChanged += selectedItems =>
+            {
+                foreach (var item in selectedItems)
+                {
+                    var lobby = item as Lobby;
+
+                    if (lobby != null)
+                    {
+                        Debug.Log($"Clicked lobby: {lobby.Name}");
+                        Task.Run(async () => await LobbyManager.Instance.JoinLobbyByLobbyObjectAsync(lobby));
+                    }
+                }
+            };
         }
 
         public async void GetLobbies()
