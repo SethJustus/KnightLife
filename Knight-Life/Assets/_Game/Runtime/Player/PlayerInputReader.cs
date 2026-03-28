@@ -10,6 +10,7 @@ public class PlayerInputReader : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        Debug.Log("Attempting to move");
         Move = context.ReadValue<Vector2>();
     }
 
