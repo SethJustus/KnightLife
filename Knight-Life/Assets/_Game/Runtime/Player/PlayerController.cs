@@ -51,11 +51,13 @@ namespace KnightLife.Runtime.Player
 
         private void Update()
         {
-            Debug.Log($"Owner={IsOwner} IsPlayer={IsLocalPlayer} Move={input.Move} Look={input.Look} Jump={input.JumpPressed}");
             if (!IsOwner)
             {
                 return;
             }
+
+            Debug.Log($"Owner={IsOwner} IsPlayer={IsLocalPlayer} Move={input.Move} Look={input.Look} Jump={input.JumpPressed}");
+
 
             Move();
             Look();
