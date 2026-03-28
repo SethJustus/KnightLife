@@ -2,6 +2,7 @@ namespace KnightLife.Runtime.Player
 {
     using Unity.Netcode;
     using UnityEngine;
+    using UnityEngine.InputSystem;
     using UnityEngine.SocialPlatforms;
 
     /// <summary>
@@ -12,7 +13,8 @@ namespace KnightLife.Runtime.Player
         [SerializeField] private Camera playerCamera;
         [SerializeField] private AudioListener audioListener;
 
-        [SerializeField] private PlayerInputReader input;
+        [SerializeField] private PlayerInputReader inputReader;
+        private PlayerInput input;
 
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 6f;
@@ -31,15 +33,16 @@ namespace KnightLife.Runtime.Player
 
         public override void OnNetworkSpawn()
         {
-
-
+            input = GetComponent<PlayerInput>();
             playerCamera.gameObject.SetActive(IsOwner);
+            inputReader.enabled = IsOwner;
             input.enabled = IsOwner;
             if (!IsOwner)
             {
                 return;
             }
 
+            
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -56,7 +59,7 @@ namespace KnightLife.Runtime.Player
                 return;
             }
 
-            Debug.Log($"Owner={IsOwner} IsPlayer={IsLocalPlayer} Move={input.Move} Look={input.Look} Jump={input.JumpPressed}");
+            Debug.Log($"Owner={IsOwner} IsPlayer={IsLocalPlayer} Move={inputReader.Move} Look={inputReader.Look} Jump={inputReader.JumpPressed}");
 
 
             Move();
@@ -70,12 +73,12 @@ namespace KnightLife.Runtime.Player
                 verticalVelocity = -2f;
             }
 
-            Vector3 move = transform.right * input.Move.x + transform.forward * input.Move.y;
+            Vector3 move = transform.right * inputReader.Move.x + transform.forward * inputReader.Move.y;
 
-            float speed = input.SprintHeld ? moveSpeed * sprintMultiplier : moveSpeed;
+            float speed = inputReader.SprintHeld ? moveSpeed * sprintMultiplier : moveSpeed;
             move *= speed;
 
-            if (controller.isGrounded && input.JumpPressed)
+            if (controller.isGrounded && inputReader.JumpPressed)
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
             verticalVelocity += gravity * Time.deltaTime;
@@ -83,13 +86,13 @@ namespace KnightLife.Runtime.Player
 
             controller.Move(move * Time.deltaTime);
 
-            input.ClearOneFrameFlags();
+            inputReader.ClearOneFrameFlags();
         }
 
         private float pitch;
         private void Look()
         {
-            Vector2 lookDelta = input.Look * lookSensitivity;
+            Vector2 lookDelta = inputReader.Look * lookSensitivity;
 
             // Yaw: rotate player left/right
             gameObject.transform.Rotate(Vector3.up * lookDelta.x);
