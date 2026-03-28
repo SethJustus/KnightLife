@@ -34,6 +34,7 @@ namespace KnightLife.Runtime.Player
 
 
             playerCamera.gameObject.SetActive(IsOwner);
+            input.enabled = IsOwner;
             if (!IsOwner)
             {
                 return;
