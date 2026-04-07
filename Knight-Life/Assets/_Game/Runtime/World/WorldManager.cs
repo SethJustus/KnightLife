@@ -8,6 +8,7 @@ public class WorldManager : MonoBehaviour
 
     [Header("Chunk Settings")]
     public int ChunkSize = 16;
+    public int MaxGroundHeight = 16;
     public float ChunkTileSize = 1f;
 
     [Header("Noise Settings")]
