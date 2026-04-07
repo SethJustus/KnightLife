@@ -1,0 +1,17 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/BrowseServersStyle.uss?fileID=7433441132597879392&amp;guid=58b2a6a03e8aaf04c91663e94fd21511&amp;type=3#BrowseServersStyle"/>
+    <ui:VisualElement name="Container" style="flex-grow: 1; background-color: rgb(164, 164, 164);">
+        <ui:VisualElement name="Header" style="height: 70px; flex-direction: row;">
+            <ui:Label text="Lobbies&#10;" class="header" style="align-self: auto;"/>
+            <ui:Button text="Create New Lobby&#10;" name="create-lobby-button" class="button"/>
+            <ui:Button text="Refresh Lobbies" name="refresh-lobbies-button" class="button"/>
+        </ui:VisualElement>
+        <ui:MultiColumnListView columns="" sort-column-descriptions="" name="lobby-list">
+            <ui:Columns>
+                <ui:Column stretchable="true" name="name" title="Name"/>
+                <ui:Column name="current-players" title="Current Players" stretchable="true"/>
+                <ui:Column name="max-players" title="Max Players" stretchable="true"/>
+            </ui:Columns>
+        </ui:MultiColumnListView>
+    </ui:VisualElement>
+</ui:UXML>
