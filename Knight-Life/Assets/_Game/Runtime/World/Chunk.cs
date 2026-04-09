@@ -10,7 +10,7 @@ public class Chunk : MonoBehaviour
 
     // --- private mesh building state ---
     private Block[,,] blocks;
-    private List<Vector3> verts = new();
+    private List<Vector3> Verts = new();
     private List<int> tris = new();
     private List<Vector2> uvs = new();
     private List<Color> colors = new();
@@ -22,16 +22,16 @@ public class Chunk : MonoBehaviour
     // -------------------------------------------------------
     void Generate()
     {
-        blocks = new Block[WorldManager.Instance.ChunkSize, WorldManager.Instance.MaxGroundHeight, WorldManager.Instance.ChunkSize];
+        blocks = new Block[WorldManager.Instance.ChunkSize, WorldManager.Instance.BuildHeight, WorldManager.Instance.ChunkSize];
         float offset = WorldManager.Instance.Seed * 0.1f;
 
         for (int x = 0; x < WorldManager.Instance.ChunkSize; x++)
             for (int z = 0; z < WorldManager.Instance.ChunkSize; z++)
             {
                 float n = SampleNoise(x + offset, z + offset);
-                int surfaceY = Mathf.RoundToInt(n * (WorldManager.Instance.MaxGroundHeight - 1));
+                int surfaceY = Mathf.RoundToInt(n * (WorldManager.Instance.BuildHeight - 1));
 
-                for (int y = 0; y < WorldManager.Instance.MaxGroundHeight; y++)
+                for (int y = 0; y < WorldManager.Instance.BuildHeight; y++)
                     blocks[x, y, z] = GetBlock(y, surfaceY);
             }
 
@@ -66,10 +66,10 @@ public class Chunk : MonoBehaviour
     // -------------------------------------------------------
     void BuildMesh()
     {
-        verts.Clear(); tris.Clear(); uvs.Clear(); colors.Clear();
+        Verts.Clear(); tris.Clear(); uvs.Clear(); colors.Clear();
 
         for (int x = 0; x < WorldManager.Instance.ChunkSize; x++)
-            for (int y = 0; y < WorldManager.Instance.MaxGroundHeight; y++)
+            for (int y = 0; y < WorldManager.Instance.BuildHeight; y++)
                 for (int z = 0; z < WorldManager.Instance.ChunkSize; z++)
                 {
                     Block block = blocks[x, y, z]; // read it once here
@@ -95,45 +95,45 @@ public class Chunk : MonoBehaviour
 
     void AddFace(Vector3 pos, Direction dir, Block block)
     {
-        int vi = verts.Count; // vertex index before adding
+        int vi = Verts.Count; // vertex index before adding
         
         switch (dir)
         {
             case Direction.Top:
-                verts.Add(pos + new Vector3(0, 1, 0));
-                verts.Add(pos + new Vector3(0, 1, 1));
-                verts.Add(pos + new Vector3(1, 1, 1));
-                verts.Add(pos + new Vector3(1, 1, 0));
+                Verts.Add(pos + new Vector3(0, 1, 0));
+                Verts.Add(pos + new Vector3(0, 1, 1));
+                Verts.Add(pos + new Vector3(1, 1, 1));
+                Verts.Add(pos + new Vector3(1, 1, 0));
                 break;
             case Direction.Bottom:
-                verts.Add(pos + new Vector3(0, 0, 0));
-                verts.Add(pos + new Vector3(1, 0, 0));
-                verts.Add(pos + new Vector3(1, 0, 1));
-                verts.Add(pos + new Vector3(0, 0, 1));
+                Verts.Add(pos + new Vector3(0, 0, 0));
+                Verts.Add(pos + new Vector3(1, 0, 0));
+                Verts.Add(pos + new Vector3(1, 0, 1));
+                Verts.Add(pos + new Vector3(0, 0, 1));
                 break;
             case Direction.Right:
-                verts.Add(pos + new Vector3(1, 0, 0));
-                verts.Add(pos + new Vector3(1, 1, 0));
-                verts.Add(pos + new Vector3(1, 1, 1));
-                verts.Add(pos + new Vector3(1, 0, 1));
+                Verts.Add(pos + new Vector3(1, 0, 0));
+                Verts.Add(pos + new Vector3(1, 1, 0));
+                Verts.Add(pos + new Vector3(1, 1, 1));
+                Verts.Add(pos + new Vector3(1, 0, 1));
                 break;
             case Direction.Left:
-                verts.Add(pos + new Vector3(0, 0, 0));
-                verts.Add(pos + new Vector3(0, 0, 1));
-                verts.Add(pos + new Vector3(0, 1, 1));
-                verts.Add(pos + new Vector3(0, 1, 0));
+                Verts.Add(pos + new Vector3(0, 0, 0));
+                Verts.Add(pos + new Vector3(0, 0, 1));
+                Verts.Add(pos + new Vector3(0, 1, 1));
+                Verts.Add(pos + new Vector3(0, 1, 0));
                 break;
             case Direction.Front:
-                verts.Add(pos + new Vector3(0, 0, 1));
-                verts.Add(pos + new Vector3(1, 0, 1));
-                verts.Add(pos + new Vector3(1, 1, 1));
-                verts.Add(pos + new Vector3(0, 1, 1));
+                Verts.Add(pos + new Vector3(0, 0, 1));
+                Verts.Add(pos + new Vector3(1, 0, 1));
+                Verts.Add(pos + new Vector3(1, 1, 1));
+                Verts.Add(pos + new Vector3(0, 1, 1));
                 break;
             case Direction.Back:
-                verts.Add(pos + new Vector3(0, 0, 0));
-                verts.Add(pos + new Vector3(0, 1, 0));
-                verts.Add(pos + new Vector3(1, 1, 0));
-                verts.Add(pos + new Vector3(1, 0, 0));
+                Verts.Add(pos + new Vector3(0, 0, 0));
+                Verts.Add(pos + new Vector3(0, 1, 0));
+                Verts.Add(pos + new Vector3(1, 1, 0));
+                Verts.Add(pos + new Vector3(1, 0, 0));
                 break;
         }
 
@@ -156,7 +156,7 @@ public class Chunk : MonoBehaviour
     void ApplyMesh()
     {
         var mesh = new Mesh { name = "Chunk" };
-        mesh.SetVertices(verts);
+        mesh.SetVertices(Verts);
         mesh.SetTriangles(tris, 0);
         mesh.SetUVs(0, uvs);
         mesh.SetColors(colors);
@@ -173,7 +173,7 @@ public class Chunk : MonoBehaviour
     {
         // Out of chunk bounds counts as Air (exposed edge face)
         if (x < 0 || x >= WorldManager.Instance.ChunkSize) return true;
-        if (y < 0 || y >= WorldManager.Instance.MaxGroundHeight) return true;
+        if (y < 0 || y >= WorldManager.Instance.BuildHeight) return true;
         if (z < 0 || z >= WorldManager.Instance.ChunkSize) return true;
         return blocks[x, y, z] == Block.Air;
     }

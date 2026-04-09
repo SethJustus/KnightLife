@@ -367,10 +367,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1256857381}
-  - component: {fileID: 1256857380}
   - component: {fileID: 1256857384}
   - component: {fileID: 1256857383}
   - component: {fileID: 1256857382}
+  - component: {fileID: 1256857385}
   m_Layer: 0
   m_Name: Chunk
   m_TagString: Untagged
@@ -378,18 +378,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1256857380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1256857379}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27daabf261ccf544898ff96899178abb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Chunk
 --- !u!4 &1256857381
 Transform:
   m_ObjectHideFlags: 0
@@ -484,6 +472,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256857379}
   m_Mesh: {fileID: 0}
+--- !u!114 &1256857385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256857379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cc59fc3c7586dc44bd0a222f2e4bfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Chunk2
 --- !u!1 &1751653768
 GameObject:
   m_ObjectHideFlags: 0
