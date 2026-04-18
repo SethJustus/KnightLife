@@ -66,6 +66,8 @@ public class ChunkMeshData
     public List<Color> VertexColors { get; set; } = new();
 }
 
+[DefaultExecutionOrder(0)]
+[ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class Chunk2 : MonoBehaviour
 {
@@ -102,9 +104,22 @@ public class Chunk2 : MonoBehaviour
                 { new Vector3(0,0,1), new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(1,0,1) } },
         };
 
+    void OnEnable()
+    {
+        // Small delay to ensure WorldManager.OnEnable has run first
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            if (this != null) // Guard against destroyed object
+                InitializeChunk();
+        };
+#endif
+    }
+
     #region Unity Methods
     public void Start()
     {
+        UnityEngine.Debug.Log("Starting Chunk");
         InitializeChunk();
     }
     #endregion
@@ -112,6 +127,7 @@ public class Chunk2 : MonoBehaviour
     #region Public Methods
     public void InitializeChunk()
     {
+        UnityEngine.Debug.Log("Initializing Chunk");
         var stopwatch = Stopwatch.StartNew();
         // Initialize the Voxels array
         this.Voxels = new Voxel[WorldManager.Instance.ChunkSize, WorldManager.Instance.BuildHeight, WorldManager.Instance.ChunkSize];
@@ -130,19 +146,35 @@ public class Chunk2 : MonoBehaviour
     #region Private Methods
     private void GenerateVoxelData()
     {
+
+
         // If voxel data exists, read it
 
         // Otherwise create new
-        // Start with a flat ground
+
+        float offset = WorldManager.Instance.Seed * 0.1f;
         for (var x = 0; x < WorldManager.Instance.ChunkSize; x++)
         {
             for (var z = 0; z < WorldManager.Instance.ChunkSize; z++)
             {
-                var y = 0;
-                Voxels[x, y, z].VoxelType = VoxelType.Grass;
-                Voxels[x, y, z].X = x;
-                Voxels[x, y, z].Y = y;
-                Voxels[x, y, z].Z = z;
+                var noiseValue = SampleNoise(x + transform.position.x + offset, z + transform.position.z + offset);
+                UnityEngine.Debug.Log(noiseValue);
+                for (var y = 0; y < WorldManager.Instance.BuildHeight; y++)
+                {
+                    var yPercent = y / (float)WorldManager.Instance.BuildHeight;
+                    if (yPercent < noiseValue)
+                    {
+                        Voxels[x, y, z].VoxelType = VoxelType.Grass;
+                    }
+                    else
+                    {
+                        Voxels[x, y, z].VoxelType = VoxelType.Air;
+                    }
+
+                    Voxels[x, y, z].X = x;
+                    Voxels[x, y, z].Y = y;
+                    Voxels[x, y, z].Z = z;
+                }
             }
         }
     }
@@ -218,6 +250,7 @@ public class Chunk2 : MonoBehaviour
     private void GenerateMeshFromMeshData()
     {
         var mesh = new Mesh { name = MESH_NAME };
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.SetVertices(MeshData.Vertices);
         //for (var submesh = 0; submesh < )
         // TODO: Set up a submesh for each voxel type
@@ -253,7 +286,21 @@ public class Chunk2 : MonoBehaviour
 
         return true;       
     }
+    float SampleNoise(float x, float y)
+    {
+        float value = 0f, amplitude = 1f, frequency = 1f, max = 0f;
+        for (int i = 0; i < WorldManager.Instance.octaves; i++)
+        {
+            value += Mathf.PerlinNoise(x / WorldManager.Instance.noiseScale * frequency,
+                                           y / WorldManager.Instance.noiseScale * frequency) * amplitude;
+            max += amplitude;
+            amplitude *= 0.5f;
+            frequency *= 2f;
+        }
+        return value / max;
+    }
 
-   
+
+
     #endregion
 }

@@ -2,6 +2,8 @@ using KnightLife.Runtime.Networking.Lobbies;
 using Unity.Services.Core;
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
+[ExecuteAlways]
 public class WorldManager : MonoBehaviour
 {
     public int Seed { get; private set; }
@@ -18,18 +20,27 @@ public class WorldManager : MonoBehaviour
 
     public static WorldManager Instance { get; private set; }
 
+    void OnEnable()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
+
     public async void Awake()
     {
+        Debug.Log("Initializing World Manager");
         // Set up the singleton instance
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying) { }
+                //DontDestroyOnLoad(gameObject);
         }
         else
         {
             Debug.LogWarning("Destroying World Manager");
-            Destroy(gameObject);
+            if (Application.isPlaying) { }
+                //Destroy(gameObject);
             return;
         }
     }
