@@ -251,6 +251,7 @@ public class Chunk2 : MonoBehaviour
     {
         var mesh = new Mesh { name = MESH_NAME };
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh.hideFlags = HideFlags.DontSave;
         mesh.SetVertices(MeshData.Vertices);
         //for (var submesh = 0; submesh < )
         // TODO: Set up a submesh for each voxel type
