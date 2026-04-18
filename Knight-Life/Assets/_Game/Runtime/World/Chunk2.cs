@@ -66,8 +66,8 @@ public class ChunkMeshData
     public List<Color> VertexColors { get; set; } = new();
 }
 
-[DefaultExecutionOrder(0)]
-[ExecuteAlways]
+//[DefaultExecutionOrder(0)]
+//[ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class Chunk2 : MonoBehaviour
 {
@@ -157,7 +157,12 @@ public class Chunk2 : MonoBehaviour
         {
             for (var z = 0; z < WorldManager.Instance.ChunkSize; z++)
             {
-                var noiseValue = SampleNoise(x + transform.position.x + offset, z + transform.position.z + offset);
+                //var noiseValue = SampleNoise(x + transform.position.x + offset, z + transform.position.z + offset);
+                var noiseValue = SampleNoise(
+                    x * WorldManager.Instance.ChunkTileSize + transform.position.x + offset,
+                    z * WorldManager.Instance.ChunkTileSize + transform.position.z + offset
+                );
+
                 UnityEngine.Debug.Log(noiseValue);
                 for (var y = 0; y < WorldManager.Instance.BuildHeight; y++)
                 {
@@ -183,59 +188,72 @@ public class Chunk2 : MonoBehaviour
     {
         var chunkMeshData = new ChunkMeshData();
 
-        for (var x = 0; x < WorldManager.Instance.ChunkSize; x++)
+        // Process each of the 6 face directions
+        foreach (var direction in Direction.All)
         {
-            for (var z = 0; z < WorldManager.Instance.ChunkSize; z++)
-            {
-                for (var y = 0; y < WorldManager.Instance.BuildHeight; y++)
-                {
-                    var voxel = this.Voxels[x, y, z];
-                    if (voxel.VoxelType == VoxelType.Air)
-                    {
-                        continue;
-                    }
-
-                    foreach (var direction in Direction.All)
-                    {
-                        // Get the voxel in this direction
-                        var coordinates = new Vector3(x, y, z);
-                        var dCoordinates = coordinates + direction;
-
-                        // Render faces at chunk edges
-                        if (CoordinatesAreWithinBounds(dCoordinates))
-                        { 
-                            var voxelInDirection = this.Voxels[(int)dCoordinates.x, (int)dCoordinates.y, (int)dCoordinates.z];
-                            if (voxelInDirection.VoxelType != VoxelType.Air)
-                            {
-                                continue;
-                            }
-                        }
-
-                        // Get the 4 vertices for this face and offset by the voxel's world position
-                        var vertices = _faceVertices[direction]
-                            .Select(v => v + coordinates)
-                            .ToArray();
-
-
-                        // It is important to get the index BEFORE adding verticies
-                        var vertexIndex = chunkMeshData.Vertices.Count;
-                        var triangleVertexIndices = new[] { vertexIndex, vertexIndex + 1, vertexIndex + 2, vertexIndex, vertexIndex + 2, vertexIndex + 3 };
-                        var uvs = new[] { new Vector2(0,0), new Vector2(0,1), new Vector2(1,1), new Vector2(1,0) };
-                        var color = GetColor(voxel.VoxelType);
-                        chunkMeshData.Vertices.AddRange(vertices);
-                        chunkMeshData.TriangleVertexIndices.AddRange(triangleVertexIndices);
-                        chunkMeshData.Uvs.AddRange(uvs);
-                        for (var i = 0; i<4;i++)
-                        {
-                            chunkMeshData.VertexColors.Add(color);
-                        }                        
-                    }                   
-                }
-            }
+            GreedyMeshForDirection(direction, chunkMeshData);
         }
 
         this.MeshData = chunkMeshData;
     }
+
+    //private void GenerateMeshDataFromVoxelData()
+    //{
+    //    var chunkMeshData = new ChunkMeshData();
+
+    //    for (var x = 0; x < WorldManager.Instance.ChunkSize; x++)
+    //    {
+    //        for (var z = 0; z < WorldManager.Instance.ChunkSize; z++)
+    //        {
+    //            for (var y = 0; y < WorldManager.Instance.BuildHeight; y++)
+    //            {
+    //                var voxel = this.Voxels[x, y, z];
+    //                if (voxel.VoxelType == VoxelType.Air)
+    //                {
+    //                    continue;
+    //                }
+
+    //                foreach (var direction in Direction.All)
+    //                {
+    //                    // Get the voxel in this direction
+    //                    var coordinates = new Vector3(x, y, z);
+    //                    var dCoordinates = coordinates + direction;
+
+    //                    // Render faces at chunk edges
+    //                    if (CoordinatesAreWithinBounds(dCoordinates))
+    //                    { 
+    //                        var voxelInDirection = this.Voxels[(int)dCoordinates.x, (int)dCoordinates.y, (int)dCoordinates.z];
+    //                        if (voxelInDirection.VoxelType != VoxelType.Air)
+    //                        {
+    //                            continue;
+    //                        }
+    //                    }
+
+    //                    // Get the 4 vertices for this face and offset by the voxel's world position
+    //                    var vertices = _faceVertices[direction]
+    //                        .Select(v => v + coordinates)
+    //                        .ToArray();
+
+
+    //                    // It is important to get the index BEFORE adding verticies
+    //                    var vertexIndex = chunkMeshData.Vertices.Count;
+    //                    var triangleVertexIndices = new[] { vertexIndex, vertexIndex + 1, vertexIndex + 2, vertexIndex, vertexIndex + 2, vertexIndex + 3 };
+    //                    var uvs = new[] { new Vector2(0,0), new Vector2(0,1), new Vector2(1,1), new Vector2(1,0) };
+    //                    var color = GetColor(voxel.VoxelType);
+    //                    chunkMeshData.Vertices.AddRange(vertices);
+    //                    chunkMeshData.TriangleVertexIndices.AddRange(triangleVertexIndices);
+    //                    chunkMeshData.Uvs.AddRange(uvs);
+    //                    for (var i = 0; i<4;i++)
+    //                    {
+    //                        chunkMeshData.VertexColors.Add(color);
+    //                    }                        
+    //                }                   
+    //            }
+    //        }
+    //    }
+
+    //    this.MeshData = chunkMeshData;
+    //}
 
     private Color GetColor(VoxelType voxelType)
     {
@@ -299,6 +317,160 @@ public class Chunk2 : MonoBehaviour
             frequency *= 2f;
         }
         return value / max;
+    }
+
+    private void GreedyMeshForDirection(Vector3 direction, ChunkMeshData chunkMeshData)
+    {
+        int normalAxis, uAxis, vAxis;
+
+        if (direction == Direction.Left || direction == Direction.Right)
+        { normalAxis = 0; uAxis = 2; vAxis = 1; }
+        else if (direction == Direction.Up || direction == Direction.Down)
+        { normalAxis = 1; uAxis = 0; vAxis = 2; }
+        else
+        { normalAxis = 2; uAxis = 0; vAxis = 1; }
+
+        // Whether the face sits at n+1 (positive side) or n (negative side)
+        // and whether to flip winding order
+        bool isPositiveFace = direction[normalAxis] > 0;
+
+        int[] size = {
+        WorldManager.Instance.ChunkSize,
+        WorldManager.Instance.BuildHeight,
+        WorldManager.Instance.ChunkSize
+    };
+
+        int normalSize = size[normalAxis];
+        int uSize = size[uAxis];
+        int vSize = size[vAxis];
+
+        for (int n = 0; n < normalSize; n++)
+        {
+            VoxelType?[,] mask = new VoxelType?[uSize, vSize];
+
+            for (int u = 0; u < uSize; u++)
+            {
+                for (int v = 0; v < vSize; v++)
+                {
+                    int[] coord = new int[3];
+                    coord[normalAxis] = n;
+                    coord[uAxis] = u;
+                    coord[vAxis] = v;
+
+                    var voxel = Voxels[coord[0], coord[1], coord[2]];
+                    if (voxel.VoxelType == VoxelType.Air) { mask[u, v] = null; continue; }
+
+                    int[] neighborCoord = (int[])coord.Clone();
+                    neighborCoord[normalAxis] += (int)direction[normalAxis];
+
+                    var neighborPos = new Vector3(neighborCoord[0], neighborCoord[1], neighborCoord[2]);
+                    if (CoordinatesAreWithinBounds(neighborPos))
+                    {
+                        var neighbor = Voxels[neighborCoord[0], neighborCoord[1], neighborCoord[2]];
+                        mask[u, v] = neighbor.VoxelType == VoxelType.Air ? voxel.VoxelType : null;
+                    }
+                    else
+                    {
+                        mask[u, v] = voxel.VoxelType;
+                    }
+                }
+            }
+
+            bool[,] merged = new bool[uSize, vSize];
+
+            for (int u = 0; u < uSize; u++)
+            {
+                for (int v = 0; v < vSize; v++)
+                {
+                    if (mask[u, v] == null || merged[u, v]) continue;
+
+                    VoxelType faceType = mask[u, v].Value;
+
+                    int width = 1;
+                    while (u + width < uSize && mask[u + width, v] == faceType && !merged[u + width, v])
+                        width++;
+
+                    int height = 1;
+                    bool canExpand = true;
+                    while (v + height < vSize && canExpand)
+                    {
+                        for (int k = 0; k < width; k++)
+                        {
+                            if (mask[u + k, v + height] != faceType || merged[u + k, v + height])
+                            { canExpand = false; break; }
+                        }
+                        if (canExpand) height++;
+                    }
+
+                    for (int du = 0; du < width; du++)
+                        for (int dv = 0; dv < height; dv++)
+                            merged[u + du, v + dv] = true;
+
+                    // Face offset: positive faces sit at n+1, negative at n
+                    float faceN = isPositiveFace ? n + 1f : n;
+
+                    //Vector3 MakeVertex(float fu, float fv)
+                    //{
+                    //    float[] p = new float[3];
+                    //    p[normalAxis] = faceN;
+                    //    p[uAxis] = fu;
+                    //    p[vAxis] = fv;
+                    //    return new Vector3(p[0], p[1], p[2]);
+                    //}
+                    Vector3 MakeVertex(float fu, float fv)
+                    {
+                        float tileSize = WorldManager.Instance.ChunkTileSize;
+                        float[] p = new float[3];
+                        p[normalAxis] = faceN * tileSize;
+                        p[uAxis] = fu * tileSize;
+                        p[vAxis] = fv * tileSize;
+                        return new Vector3(p[0], p[1], p[2]);
+                    }
+
+
+                    Vector3 v0 = MakeVertex(u, v);
+                    Vector3 v1 = MakeVertex(u + width, v);
+                    Vector3 v2 = MakeVertex(u + width, v + height);
+                    Vector3 v3 = MakeVertex(u, v + height);
+
+                    // Swap these — positive faces were winding the wrong way
+                    Vector3[] quad;
+                    if (direction == Direction.Forward || direction == Direction.Back)
+                    {
+                        // Z axis needs opposite winding to X and Y
+                        quad = isPositiveFace
+                            ? new[] { v0, v1, v2, v3 }
+                            : new[] { v1, v0, v3, v2 };
+                    }
+                    else
+                    {
+                        quad = isPositiveFace
+                            ? new[] { v1, v0, v3, v2 }
+                            : new[] { v0, v1, v2, v3 };
+                    }
+
+                    int vertexIndex = chunkMeshData.Vertices.Count;
+                    chunkMeshData.Vertices.AddRange(quad);
+                    chunkMeshData.TriangleVertexIndices.AddRange(new[]
+                    {
+                    vertexIndex,     vertexIndex + 1, vertexIndex + 2,
+                    vertexIndex,     vertexIndex + 2, vertexIndex + 3
+                });
+
+                    chunkMeshData.Uvs.AddRange(new[]
+                    {
+                    new Vector2(0,     0      ),
+                    new Vector2(width, 0      ),
+                    new Vector2(width, height ),
+                    new Vector2(0,     height )
+                });
+
+                    var color = GetColor(faceType);
+                    for (int i = 0; i < 4; i++)
+                        chunkMeshData.VertexColors.Add(color);
+                }
+            }
+        }
     }
 
 

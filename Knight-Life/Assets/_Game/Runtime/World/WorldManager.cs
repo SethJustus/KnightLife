@@ -2,8 +2,8 @@ using KnightLife.Runtime.Networking.Lobbies;
 using Unity.Services.Core;
 using UnityEngine;
 
-[DefaultExecutionOrder(-100)]
-[ExecuteAlways]
+//[DefaultExecutionOrder(-100)]
+//[ExecuteAlways]
 public class WorldManager : MonoBehaviour
 {
     public int Seed { get; private set; }
@@ -22,13 +22,13 @@ public class WorldManager : MonoBehaviour
 
     public static WorldManager Instance { get; private set; }
 
-    void OnEnable()
-    {
-        GenerateChunkGrid();
+    //void OnEnable()
+    //{
+    //    
 
-        if (Instance == null)
-            Instance = this;
-    }
+    //    if (Instance == null)
+    //        Instance = this;
+    //}
 
     public async void Awake()
     {
@@ -37,14 +37,19 @@ public class WorldManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            if (Application.isPlaying) { }
-                //DontDestroyOnLoad(gameObject);
+            
+            if (Application.isPlaying) {
+                DontDestroyOnLoad(gameObject);
+                GenerateChunkGrid();
+            }
+                
         }
         else
         {
             Debug.LogWarning("Destroying World Manager");
-            if (Application.isPlaying) { }
-                //Destroy(gameObject);
+            if (Application.isPlaying) { 
+                Destroy(gameObject);
+            }
             return;
         }
     }
